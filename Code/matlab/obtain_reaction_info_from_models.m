@@ -57,7 +57,7 @@ rxn_list_ir = rxn_list(~ismember(rxn_list, rxn_bine));
 rxn_cell_ir = rxn_cell(~ismember(rxn_cell, cell_bine));
 
 % save table
-final_table = cell2table([rxn_cell_ir, rxn_list_ir], 'VariableNames', {'RxnIndex', 'RxnID'});
+final_table = cell2table([rxn_list_ir, rxn_cell_ir], 'VariableNames', {'RxnID','RxnIndex'});
 writetable(final_table, 'Data/Reactions/list_of_irreversible_rxns.csv');
 
 %% find reactions without GPR rules
