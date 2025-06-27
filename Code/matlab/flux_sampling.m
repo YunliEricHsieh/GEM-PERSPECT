@@ -69,9 +69,9 @@ auto_model.ub(auto_index) = 0.9*auto_opt.f;
 hetero_model.ub(hetero_index) = 0.9*hetero_opt.f;
 mixo_model.ub(mixo_index) = 0.9*mixo_opt.f;
 
-[a_sampleStruct, a_mixedFraction] = gpSampler(auto_model, 5000);
-[h_sampleStruct, h_mixedFraction] = gpSampler(hetero_model, 5000);
-[m_sampleStruct, m_mixedFraction] = gpSampler(mixo_model, 5000);
+[a_sampleStruct, a_mixedFraction] = gpSampler(auto_model);
+[h_sampleStruct, h_mixedFraction] = gpSampler(hetero_model);
+[m_sampleStruct, m_mixedFraction] = gpSampler(mixo_model);
 
 %% create the rxn index
 % find the metabolic reactions

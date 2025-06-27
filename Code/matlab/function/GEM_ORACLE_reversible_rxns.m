@@ -253,26 +253,3 @@ parfor j = 1:numel(rxn_list)
     end
 
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
