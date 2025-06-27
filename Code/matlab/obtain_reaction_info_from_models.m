@@ -44,12 +44,21 @@ forward_rxns = strrep(rerxn, '_REV', '');
 forward_cells = rxn_cell(ismember(rxn_list, forward_rxns));
 
 % combine the lists
-cell_bind = [forward_cells; rerxn_cell];
-rxn_bind = [forward_rxns; rerxn];
+cell_bine = [forward_cells; rerxn_cell];
+rxn_bine = [forward_rxns; rerxn];
 
 % save table
-final_table = cell2table([cell_bind, rxn_bind], 'VariableNames', {'RxnIndex', 'RxnID'});
+final_table = cell2table([cell_bine, rxn_bine], 'VariableNames', {'RxnIndex', 'RxnID'});
 writetable(final_table, 'Data/Reactions/list_of_reversible_rxns.csv');
+
+%% find irreversible reactions
+% remove the reversible from the list
+rxn_list_ir = rxn_list(~ismember(rxn_list, rxn_bine));
+rxn_cell_ir = rxn_cell(~ismember(rxn_cell, cell_bine));
+
+% save table
+final_table = cell2table([rxn_list_ir, rxn_cell_ir], 'VariableNames', {'RxnID','RxnIndex'});
+writetable(final_table, 'Data/Reactions/list_of_irreversible_rxns.csv');
 
 %% find reactions without GPR rules
 % find indices of reactions from rxn_list in  model
