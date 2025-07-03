@@ -65,6 +65,7 @@ T2hetero <- results$T2$Hetero
 T2mixo   <- results$T2$Mixo
 
 # identify reactions with zero flux
+library(dplyr)
 library(purrr)
 rxn_list <- rxn_list %>% 
   transmute(RxnIndex, RxnID) %>% 
