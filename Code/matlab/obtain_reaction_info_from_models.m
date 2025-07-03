@@ -153,7 +153,7 @@ rxnIndex = rxn_cell(ismember(rxn_list, target_rxns));
 final_table = cell2table([rxnIndex, target_rxns, enzyme_list], ...
     'VariableNames', {'RxnIndex', 'RxnID', 'Enzymes'});
 
-writetable(final_table, 'Data/Reactions/list_of_rxns_with_enzymes_in_both.csv');
+writetable(final_table, 'Data/Reactions/list_of_rxns_with_proteins_in_both.csv');
 
 %% find the rxns associated with at least one enzyme that existing in model and mutant table
 % identify reactions with at least one target enzymes
@@ -202,34 +202,4 @@ rxnIndex = rxn_cell(ismember(rxn_list, target_rxns));
 % Create final table and write to file
 final_table = cell2table([rxnIndex, target_rxns, enzyme_list], ...
     'VariableNames', {'RxnIndex', 'RxnID', 'Enzymes'});
-writetable(final_table, 'Data/Reactions/list_of_rxns_with_at_least_one_enzyme_in_both.csv');
-
-%% find the transport rxns and their associated enzyme
-trans_index = find(contains(auto_model.rxnNames, 'transport'))
-
-trans_index_with_GPR = [];
-
-for i = 1:numel(trans_index)
-    if ~isempty(auto_model.rules{trans_index(i)})
-        if ~contains(auto_model.rxns(trans_index(i)), '_REV')
-            trans_index_with_GPR = [trans_index_with_GPR; trans_index(i)];
-        end
-    end
-end
-
-transport_rxn = [];
-associated_enzyme = [];
-
-for i = 1:numel(trans_index_with_GPR)
-    ind = trans_index_with_GPR(i);
-    t_enzyme = regexp(auto_model.rules{ind}, 'x\((\d+)\)', 'tokens');
-    numbers = cellfun(@(x) str2double(x{1}), t_enzyme);
-    for j = 1:numel(numbers)
-        transport_rxn = [transport_rxn; auto_model.rxns(ind)];
-        associated_enzyme = [associated_enzyme; auto_model.genes(numbers(j))];
-    end
-end
-
-final_table = cell2table([transport_rxn, associated_enzyme]);
-final_table.Properties.VariableNames = {'RxnID', 'Enzymes'};
-writetable(T, 'Data/Reactions/list_of_transport_rxn_with_enzyme.csv');
+writetable(final_table, 'Data/Reactions/list_of_rxns_with_at_least_one_protein_in_both.csv');

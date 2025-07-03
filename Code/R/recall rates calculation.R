@@ -2,7 +2,7 @@ setwd('/Users/yunli/GEM-ORACLE/')
 
 library(dplyr)
 
-rxn_list <- read.table("Data/Reactions/list_of_rxns_with_at_least_one_enzyme_in_both.csv", header = TRUE, sep = ",")
+rxn_list <- read.table("Data/Reactions/list_of_rxns_with_at_least_one_protein_in_both.csv", header = TRUE, sep = ",")
 
 # read & clean one table
 read_and_clean <- function(path) {

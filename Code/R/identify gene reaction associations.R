@@ -96,7 +96,7 @@ potential_association <- rxn_list %>%
 
 ## refine GPR associations
 # reaction with GPR rules
-rxn_list1 <- read.table("Data/Reactions/list_of_rxns_with_enzymes_in_both.csv", header = TRUE, sep = ",")
+rxn_list1 <- read.table("Data/Reactions/list_of_rxns_with_proteins_in_both.csv", header = TRUE, sep = ",")
 
 library(tidyr)
 long_rxn <- rxn_list1 %>% 

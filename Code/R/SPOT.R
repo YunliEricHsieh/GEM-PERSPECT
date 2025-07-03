@@ -6,7 +6,7 @@ library(dplyr)
 #  read excel file
 library(readxl)
 validate_data <- read_excel("Results/SPOT/SPOT_prediction_validate.xlsx")
-predicted_data <- read_excel("Results/SPOT/candidate enzyme of transporter.xlsx")
+predicted_data <- read_excel("Results/SPOT/candidate protein of transporter.xlsx")
 
 #  combine the prediction score for distribution plot
 combined_scores <- rbind(
