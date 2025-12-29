@@ -1,4 +1,4 @@
-function flux_values = GEM_ORACLE(models, ratios, rxn_list, alpha, type)
+function flux_values = GEM_PERSPECT_reversible_rxns(models, ratios, rxn_list, alpha, type)
 
 indices = ~isnan(ratios);
 model_index = zeros(8, 1);
@@ -78,8 +78,8 @@ end
 
 % build the matrix
 % Preallocate Aeq matrix
-Aeq = zeros(sum(nmet), sum(nrxn)); 
-Aeq1 = zeros(numModels-1, size(Aeq,2));  
+Aeq = zeros(sum(nmet), sum(nrxn)+1); 
+Aeq1 = zeros(2*(numModels-1), size(Aeq,2));  
 
 row = 0;
 col = 0;
@@ -93,7 +93,7 @@ end
 beq = zeros(size(Aeq,1), 1);
 
 % v_a - v_m = 0
-beq1 = zeros(numModels-1,1);
+beq1 = zeros(2*(numModels-1),1);
 
 % v_bio - v_bio*r < w and -v_bio + v_bio*r < w (w = 0.05*r)
 w = zeros(8, 1);
@@ -152,13 +152,19 @@ Aineq(~any(Aineq, 2), :) = [];
 
 bineq = [w(indices); w(indices)];
 
+% constraint of pairs reactions
+% v_f - v_b - z < 0 & v_b - v_f - z < 0
+Aineq1 = zeros(2, size(Aeq,2));
+bineq1 = zeros(2, 1);
+
 % build the matrix for gurobi solver
-problem.A = sparse([Aeq; Aineq; Aeq1]); 
-problem.rhs = [beq; bineq; beq1];
-problem.lb = lb;
-problem.ub = ub;
+problem.A = sparse([Aeq; Aineq; Aeq1; Aineq1]); 
+problem.rhs = [beq; bineq; beq1; bineq1];
+% add upper and lower bound for z
+problem.lb = [lb;0]; 
+problem.ub = [ub; 1000]; 
 problem.vtype = repelem('C',size(Aeq,2),1);
-problem.sense = [repelem('=',size(beq,1),1); repelem('<',size(bineq,1),1); repelem('=',size(beq1,1),1)];
+problem.sense = [repelem('=',size(beq,1),1); repelem('<',size(bineq,1),1); repelem('=',size(beq1,1),1); repelem('<',size(bineq1,1),1)];
 
 if ismember(type, {'max'})
     problem.modelsense = 'max';
@@ -177,22 +183,42 @@ parfor j = 1:numel(rxn_list)
     problem_local = problem;
       
     % find the target rxns
-    target_rxns = zeros(numel(test_models), 1);
+    % Backward
+    target_rxns_R = zeros(numel(test_models), 1);
 
     for i = 1:numel(test_models)
-        target_rxns(i) = find(ismember(test_models{i}.rxns, rxn_list{j}));
+        target_rxns_R(i) = find(ismember(test_models{i}.rxns, rxn_list{j}));
     end
 
-    % assign the reaction constraint into matrix
+    % Forward
+    target_rxns_F = zeros(numel(test_models), 1);
+
+    for i = 1:numel(test_models)
+        target_rxns_F(i) = find(ismember(test_models{i}.rxns, strrep(rxn_list{j}, '_REV', '')));
+    end
+
+    % assign the reaction constraint into matrix (equal flux)
     % v_a - v_m = 0
     col = 0;
     rowT = size(problem.A,1);
 
     for i = 1:numModels-1
-        row = rowT-(numModels-1)+i;
-        problem_local.A(row, [col+target_rxns(i), col+nrxn(ind(i))+target_rxns(i+1)]) = [1, -1];
+        row = rowT-2*(numModels-1)-2+i;
+        problem_local.A(row, [col+target_rxns_R(i), col+nrxn(ind(i))+target_rxns_R(i+1)]) = [1, -1];
+
+        row2 = rowT-(numModels-1)-2+i;
+        problem_local.A(row2, [col+target_rxns_F(i), col+nrxn(ind(i))+target_rxns_F(i+1)]) = [1, -1];
         col = col + nrxn(ind(i));
     end
+
+    % assign the reaction constraint for pairs
+    % v_f - v_b - z < 0 & v_b - v_f - z < 0
+    rowT = size(problem.A,1);
+
+    % v_b - v_f - z < 0
+    problem_local.A(rowT-1, [target_rxns_R(1), target_rxns_F(2), size(problem.A,2)]) = [1, -1, -1];
+    % v_f - v_b - z < 0
+    problem_local.A(rowT, [target_rxns_F(1), target_rxns_R(2), size(problem.A,2)]) = [1, -1, -1];
 
     % calculate the min flux sum value across all the reactions
     problem1 = problem_local;
@@ -210,7 +236,7 @@ parfor j = 1:numel(rxn_list)
 
         % determine the objective 
         obj = zeros(size(Aeq,2), 1);
-        obj(target_rxns(1)) = 1;
+        obj(end) = 1;
 
         problem_local.obj = obj;
 
