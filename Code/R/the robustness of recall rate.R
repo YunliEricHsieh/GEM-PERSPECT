@@ -3,6 +3,8 @@ setwd('/Users/yunli/GEM-PERSPECT/')
 library(dplyr)
 
 rxn_list <- read.table("Data/Reactions/list_of_rxns_with_at_least_one_protein_in_both.csv", header = TRUE, sep = ",")
+# remove the reactions associated with miltiple enzymes
+rxn_list <- rxn_list[!grepl(";", rxn_list$Enzymes), ]
 
 # read & clean one table
 read_and_clean <- function(path) {
@@ -96,10 +98,10 @@ for (th in thresholds) {
         enzyme <- enzymes[j]
         rowindex <- grep(enzyme, current_data$EnzymeID)
         if (length(rowindex) == 0) next
-
+        
         rxn <- rxn_list$RxnIndex[i]
         tmp_count <- sum(!is.na(current_data[[rowindex,rxn]]) & 
-            current_data[[rowindex,rxn]] == 0)
+                           current_data[[rowindex,rxn]] == 0)
         count <- count + tmp_count
       }
       first_case[[col_name]][i] <- count
@@ -172,7 +174,7 @@ for (th in thresholds) {
       for (j in 1:length(rxnindex)) {
         rxn <- rxn_list$RxnIndex[rxnindex[j]]
         tmp_count <- sum(!is.na(current_data[[rowindex,rxn]]) &
-            current_data[[rowindex,rxn]] == 0)
+                           current_data[[rowindex,rxn]] == 0)
         count <- count + tmp_count
       }
       # if the mutant of gene blocks one of the associated reactions, then the count is 1
@@ -235,21 +237,6 @@ for (tp in types){
 # plot violin plot
 library(ggbeeswarm)
 library(ggplot2)
-violin_plot <- ggplot(rxn_mean_flux, aes(x = Type, y = mean_flux, fill = Type)) +
-  geom_violin() +
-  geom_quasirandom(dodge.width = 0.9, varwidth = TRUE, size = 0.1) + 
-  scale_fill_brewer(palette = "Paired") +
-  labs(title = "a. Distribution of Mean Flux Values", y = "log10(Mean Flux)") +
-  theme_bw() +
-  theme(panel.border = element_rect(fill = 'transparent', colour = "black"),
-        axis.text = element_text(size = 12, color = "black"),
-        axis.title = element_text(size = 15, color = "black"),
-        plot.title = element_text(size = 13, face = "bold"),
-        axis.title.x = element_blank(),
-        legend.title = element_text(size = 15, color = "black"),
-        legend.text = element_text(size = 15, color = "black"),
-        legend.position = "right")
-
 library(scales)
 plot_recall_vs_count <- function(data, title, y_label_l, y_label_r, x_label){
   
@@ -307,14 +294,13 @@ plot_recall_vs_count <- function(data, title, y_label_l, y_label_r, x_label){
 # Combine the plots
 library(gridExtra)
 combined_plot <- gridExtra::grid.arrange(
-  violin_plot,
-  plot_recall_vs_count(f_recall_rate, 'b. Reaction-gene pair perspective', 
+  plot_recall_vs_count(f_recall_rate, 'Reaction-gene pair perspective', 
                        "Recall Rate", "Number of reaction-gene pairs", "Threshold"),
-  plot_recall_vs_count(s_recall_rate, 'c. Reaction-centric perspective', 
+  plot_recall_vs_count(s_recall_rate, 'Reaction-centric perspective', 
                        "Recall Rate", "Number of reactions", "Threshold"),
-  plot_recall_vs_count(t_recall_rate, 'd. Gene-centric perspective', 
+  plot_recall_vs_count(t_recall_rate, 'Gene-centric perspective', 
                        "Recall Rate", "Number of genes", "Threshold"),
-  ncol = 2
+  ncol = 3
 )
 # Save the combined plot
-ggsave("Results/figures/Fig 3.svg", combined_plot, width = 12, height = 8)
+ggsave("Results/figures/Sup Fig 4.svg", combined_plot, width = 12, height = 4)

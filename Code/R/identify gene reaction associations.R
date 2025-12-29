@@ -1,4 +1,4 @@
-setwd('/Users/yunli/GEM-ORACLE/')
+setwd('/Users/yunli/GEM-PERSPECT/')
 
 # identify potential gene-reaction associations
 # reaction without GPR rules
@@ -52,6 +52,7 @@ apply_foldchange_filter <- function(df, sampling, threshold) {
 }
 
 # fold change analysis
+library(dplyr)
 results <- lapply(2:2, function(th) {
   lapply(names(sam_re), function(tp) {
     df_re <- apply_foldchange_filter(max_re, sam_re[[tp]], -th)
@@ -65,7 +66,6 @@ T2hetero <- results$T2$Hetero
 T2mixo   <- results$T2$Mixo
 
 # identify reactions with zero flux
-library(dplyr)
 library(purrr)
 rxn_list <- rxn_list %>% 
   transmute(RxnIndex, RxnID) %>% 

@@ -1,4 +1,4 @@
-setwd('/Users/yunli/GEM-ORACLE/')
+setwd('/Users/yunli/GEM-PERSPECT/')
 
 phynotype_data <- read.table("Data/Mutant_phenotypes_table_filtered_final.csv", header = TRUE, sep = ",")
 
