@@ -177,9 +177,9 @@ for i = 1:height(f_mutant_table)
 
     indices = ~isnan(ratios);
 
-    % implement the GEM-ORACLE
+    % implement the GEM-PERSPECT
     if sum(indices) == 8
-        flux_screens_8 = GEM_ORACLE_reversible_rxns(models, ratios, rerxn, alpha, type);
+        flux_screens_8 = GEM_PERSPECT_reversible_rxns(models, ratios, rerxn, alpha, type);
         output = {enzyme, flux_screens_8{:}};
         writeToFile(outputFiles, output);
     end
@@ -226,9 +226,9 @@ for i = 1:height(f_mutant_table)
 
     indices = ~isnan(ratios);
 
-    % implement the GEM-ORACLE
+    % implement the GEM-PERSPECT
     if sum(indices) == 8
-        flux_screens_8 = GEM_ORACLE_reversible_rxns(models, ratios, rxn_list_ir, alpha, type);
+        flux_screens_8 = GEM_PERSPECT(models, ratios, rxn_list_ir, alpha, type);
         output = {enzyme, flux_screens_8{:}};
         writeToFile(outputFiles, output);
     end
